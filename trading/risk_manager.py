@@ -66,15 +66,17 @@ class RiskManager:
         if self.portfolio.is_daily_loss_exceeded():
             return False, f"Daily loss limit ({config.MAX_DAILY_LOSS * 100}%) exceeded"
 
-        # Check minimum confidence
-        if signal.confidence < 0.5:
-            return False, f"Low confidence ({signal.confidence * 100:.0f}%)"
+        # Check minimum confidence (configurable, default 65%)
+        min_confidence = getattr(config, 'MIN_CONFIDENCE', 0.65)
+        if signal.confidence < min_confidence:
+            return False, f"Low confidence ({signal.confidence * 100:.0f}% < {min_confidence * 100:.0f}% required)"
 
         # Check stop loss is set
         if signal.stop_loss is None:
             return False, "No stop loss defined"
 
-        # Check risk/reward ratio
+        # Check risk/reward ratio (configurable, default 2:1)
+        min_rr = getattr(config, 'MIN_RISK_REWARD', 2.0)
         if signal.take_profit is not None:
             if signal.signal_type == SignalType.BUY:
                 risk = signal.price - signal.stop_loss
@@ -87,10 +89,24 @@ class RiskManager:
                 return False, "Invalid stop loss (risk <= 0)"
 
             risk_reward = reward / risk if risk > 0 else 0
-            if risk_reward < 1.5:
-                return False, f"Poor risk/reward ratio ({risk_reward:.2f})"
+            if risk_reward < min_rr:
+                return False, f"Poor risk/reward ratio ({risk_reward:.2f} < {min_rr:.1f} required)"
 
-        return True, "Trade validated"
+        # Check volume confirmation if required
+        if getattr(config, 'REQUIRE_VOLUME_CONFIRMATION', True):
+            volume_confirmed = signal.indicators.get('volume_confirmed', False)
+            if not volume_confirmed:
+                logger.debug("Skipping %s: volume confirmation required", signal.symbol)
+                return False, "Volume below average (confirmation required)"
+
+        # Check trend alignment if required
+        if getattr(config, 'REQUIRE_TREND_ALIGNMENT', True):
+            trend_aligned = signal.indicators.get('trend_aligned', False)
+            if not trend_aligned:
+                logger.debug("Skipping %s: trend alignment required", signal.symbol)
+                return False, "Price not aligned with EMA 50 trend"
+
+        return True, "Trade validated (all criteria met)"
 
     def calculate_position_size(
         self,

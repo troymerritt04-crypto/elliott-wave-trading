@@ -21,18 +21,18 @@ BINANCE_SECRET_KEY = os.getenv("BINANCE_SECRET_KEY", "")
 BINANCE_TESTNET = os.getenv("BINANCE_TESTNET", "true").lower() == "true"
 
 # Portfolio Settings
-MAX_POSITIONS = 20
-POSITION_SIZE_PERCENT = 0.04  # 4% per position
-MAX_DRAWDOWN = 0.15  # 15% max portfolio drawdown
-MAX_DAILY_LOSS = 0.05  # 5% max single-day loss
+MAX_POSITIONS = 8  # Conservative: fewer, higher-conviction positions
+POSITION_SIZE_PERCENT = 0.03  # 3% per position (conservative)
+MAX_DRAWDOWN = 0.12  # 12% max portfolio drawdown
+MAX_DAILY_LOSS = 0.04  # 4% max single-day loss
 
 # Scanning Settings
-SCAN_INTERVAL_MINUTES = 15
+SCAN_INTERVAL_MINUTES = 30  # Scan less frequently, be patient
 TIMEFRAME = "1h"  # Primary analysis timeframe
 
 # Elliott Wave Settings
-ZIGZAG_PERCENT = 5.0  # Minimum % move for zigzag swing detection
-MIN_WAVE1_PERCENT = 3.0  # Minimum % move for valid Wave 1
+ZIGZAG_PERCENT = 7.0  # Higher threshold filters out noise
+MIN_WAVE1_PERCENT = 5.0  # Require stronger Wave 1 moves
 WAVE2_MIN_RETRACE = 0.382  # Wave 2 minimum retracement of Wave 1
 WAVE2_MAX_RETRACE = 0.786  # Wave 2 maximum retracement of Wave 1
 WAVE3_MIN_EXTENSION = 1.618  # Wave 3 minimum Fib extension
@@ -53,6 +53,10 @@ ATR_PERIOD = 14
 # Risk Management
 STOP_LOSS_ATR_MULTIPLIER = 2.0
 TAKE_PROFIT_MULTIPLIER = 3.0  # Risk/reward ratio
+MIN_CONFIDENCE = 0.65  # Minimum 65% confidence to enter trade
+MIN_RISK_REWARD = 2.0  # Minimum 2:1 risk/reward ratio
+REQUIRE_VOLUME_CONFIRMATION = True  # Volume must be above average
+REQUIRE_TREND_ALIGNMENT = True  # Price must align with EMA 50
 
 # Watchlists
 CRYPTO_WATCHLIST = [

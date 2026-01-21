@@ -77,10 +77,16 @@ class SignalGenerator:
         macd_hist = current["macd_hist"]
         ema_9 = current["ema_9"]
         ema_21 = current["ema_21"]
+        ema_50 = current["ema_50"]
         atr = current["atr"]
         volume = current["volume"]
         volume_sma = current["volume_sma"]
         rsi_div = current["rsi_divergence"]
+
+        # Check volume and trend confirmation for risk manager
+        volume_confirmed = volume > volume_sma * 1.1  # Volume 10% above average
+        trend_aligned_bullish = current_price > ema_50  # Price above EMA 50 for longs
+        trend_aligned_bearish = current_price < ema_50  # Price below EMA 50 for shorts
 
         indicator_values = {
             "rsi": rsi,
@@ -89,7 +95,9 @@ class SignalGenerator:
             "macd_hist": macd_hist,
             "ema_9": ema_9,
             "ema_21": ema_21,
+            "ema_50": ema_50,
             "atr": atr,
+            "volume_confirmed": volume_confirmed,
         }
 
         # Detect Elliott Wave pattern
@@ -116,11 +124,17 @@ class SignalGenerator:
             if pattern.direction == TrendDirection.BULLISH:
                 stop_loss = pattern.wave2_end.price - (atr * config.STOP_LOSS_ATR_MULTIPLIER)
                 take_profit = pattern.wave3_target_min
+                trend_aligned = trend_aligned_bullish
             else:
                 stop_loss = pattern.wave2_end.price + (atr * config.STOP_LOSS_ATR_MULTIPLIER)
                 take_profit = pattern.wave3_target_min
+                trend_aligned = trend_aligned_bearish
 
             signal_type = SignalType.BUY if pattern.direction == TrendDirection.BULLISH else SignalType.SELL
+
+            # Add trend alignment to indicators for risk manager validation
+            entry_indicators = indicator_values.copy()
+            entry_indicators["trend_aligned"] = trend_aligned
 
             return TradingSignal(
                 signal_type=signal_type,
@@ -132,7 +146,7 @@ class SignalGenerator:
                 wave_pattern=pattern,
                 stop_loss=stop_loss,
                 take_profit=take_profit,
-                indicators=indicator_values
+                indicators=entry_indicators
             )
 
         # Check for sell signal (Wave 4 exit)
@@ -142,6 +156,11 @@ class SignalGenerator:
 
         if is_exit:
             signal_type = SignalType.SELL if pattern.direction == TrendDirection.BULLISH else SignalType.BUY
+
+            # Exit signals bypass volume/trend checks - always allow closing positions
+            exit_indicators = indicator_values.copy()
+            exit_indicators["trend_aligned"] = True
+            exit_indicators["volume_confirmed"] = True
 
             return TradingSignal(
                 signal_type=signal_type,
@@ -153,7 +172,7 @@ class SignalGenerator:
                 wave_pattern=pattern,
                 stop_loss=None,
                 take_profit=None,
-                indicators=indicator_values
+                indicators=exit_indicators
             )
 
         # No actionable signal
