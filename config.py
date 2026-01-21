@@ -27,7 +27,7 @@ MAX_DRAWDOWN = 0.12  # 12% max portfolio drawdown
 MAX_DAILY_LOSS = 0.04  # 4% max single-day loss
 
 # Scanning Settings
-SCAN_INTERVAL_MINUTES = 30  # Scan less frequently, be patient
+SCAN_INTERVAL_MINUTES = 1  # Scan every 1 minute
 TIMEFRAME = "1h"  # Primary analysis timeframe
 
 # Elliott Wave Settings
@@ -51,11 +51,11 @@ EMA_LONG = 50
 ATR_PERIOD = 14
 
 # Risk Management
-STOP_LOSS_ATR_MULTIPLIER = 2.0
+STOP_LOSS_ATR_MULTIPLIER = 1.0  # Tighter stop loss for better R/R
 TAKE_PROFIT_MULTIPLIER = 3.0  # Risk/reward ratio
 MIN_CONFIDENCE = 0.65  # Minimum 65% confidence to enter trade
-MIN_RISK_REWARD = 2.0  # Minimum 2:1 risk/reward ratio
-REQUIRE_VOLUME_CONFIRMATION = True  # Volume must be above average
+MIN_RISK_REWARD = 1.5  # Minimum 1.5:1 risk/reward ratio
+REQUIRE_VOLUME_CONFIRMATION = False  # Disabled - don't require volume confirmation
 REQUIRE_TREND_ALIGNMENT = True  # Price must align with EMA 50
 
 # Watchlists

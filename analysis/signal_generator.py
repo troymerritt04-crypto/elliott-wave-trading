@@ -121,13 +121,15 @@ class SignalGenerator:
 
         if is_entry:
             # Calculate stop loss and take profit
+            # Stop loss based on entry price (tighter) rather than Wave 2 end
+            # Use 200% Fib extension (typical) for take profit
             if pattern.direction == TrendDirection.BULLISH:
-                stop_loss = pattern.wave2_end.price - (atr * config.STOP_LOSS_ATR_MULTIPLIER)
-                take_profit = pattern.wave3_target_min
+                stop_loss = current_price - (atr * config.STOP_LOSS_ATR_MULTIPLIER)
+                take_profit = pattern.wave3_target_typical
                 trend_aligned = trend_aligned_bullish
             else:
-                stop_loss = pattern.wave2_end.price + (atr * config.STOP_LOSS_ATR_MULTIPLIER)
-                take_profit = pattern.wave3_target_min
+                stop_loss = current_price + (atr * config.STOP_LOSS_ATR_MULTIPLIER)
+                take_profit = pattern.wave3_target_typical
                 trend_aligned = trend_aligned_bearish
 
             signal_type = SignalType.BUY if pattern.direction == TrendDirection.BULLISH else SignalType.SELL
