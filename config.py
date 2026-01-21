@@ -65,9 +65,47 @@ CRYPTO_WATCHLIST = [
 ]
 
 STOCK_WATCHLIST = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA",
-    "META", "TSLA", "AMD", "JPM", "V",
-    "SPY", "QQQ", "IWM"
+    # Mega Cap Tech
+    "AAPL", "MSFT", "GOOGL", "GOOG", "AMZN", "NVDA", "META", "TSLA", "AVGO", "ORCL",
+    # Semiconductors
+    "AMD", "INTC", "QCOM", "TXN", "MU", "AMAT", "LRCX", "KLAC", "MRVL", "ON",
+    # Software & Cloud
+    "CRM", "ADBE", "NOW", "INTU", "SNOW", "PLTR", "PANW", "CRWD", "ZS", "DDOG",
+    # Financials
+    "JPM", "BAC", "WFC", "GS", "MS", "C", "BLK", "SCHW", "AXP", "V", "MA", "PYPL",
+    # Healthcare
+    "UNH", "JNJ", "PFE", "ABBV", "MRK", "LLY", "TMO", "DHR", "BMY", "AMGN",
+    # Consumer
+    "WMT", "COST", "HD", "MCD", "NKE", "SBUX", "TGT", "LOW", "TJX", "BKNG",
+    # Industrial & Defense
+    "CAT", "DE", "BA", "RTX", "LMT", "GE", "HON", "UPS", "UNP", "MMM",
+    # Energy
+    "XOM", "CVX", "COP", "SLB", "EOG", "MPC", "PSX", "VLO", "OXY", "HAL",
+    # Communication
+    "NFLX", "DIS", "CMCSA", "T", "VZ", "TMUS", "CHTR", "WBD", "PARA", "FOX",
+    # Small/Mid Cap Tech (<$10B)
+    "SMCI", "APP", "RKLB", "IONQ", "SOUN", "BIGC", "DCBO", "ALTR", "AI", "PATH",
+    "GTLB", "CFLT", "ESTC", "NEWR", "TENB", "JAMF", "RPD", "FRSH", "BRZE", "PCOR",
+    # Small/Mid Cap Semiconductors
+    "WOLF", "ACLS", "CRUS", "DIOD", "POWI", "SLAB", "SITM", "FORM", "AOSL", "INDI",
+    # Small/Mid Cap Biotech & Healthcare
+    "EXAS", "RARE", "SRPT", "ALNY", "NBIX", "PCVX", "RYTM", "KRYS", "VERA", "IMVT",
+    "TGTX", "AXSM", "CPRX", "FOLD", "ARVN", "KYMR", "RCKT", "APLS", "BEAM", "VERV",
+    # Small/Mid Cap Consumer & Retail
+    "BOOT", "SHAK", "WING", "CAVA", "BROS", "TOST", "DTC", "CURV", "ONON", "BIRK",
+    "FIGS", "XPOF", "PRPL", "LOVE", "LE", "RENT", "POSH", "REAL", "CVNA", "WRBY",
+    # Small/Mid Cap Industrials
+    "ASPN", "ACHR", "JOBY", "LILM", "EVTL", "RDW", "ASTR", "LUNR", "ASTS", "SATL",
+    "BLDE", "POWW", "AXON", "TDG", "HEI", "OSIS", "KTOS", "RCAT", "UMAC", "PRTS",
+    # Small/Mid Cap Fintech & Financial
+    "AFRM", "UPST", "SOFI", "LC", "HOOD", "RELY", "BILL", "TOST", "MQ", "FOUR",
+    "COIN", "MARA", "RIOT", "CLSK", "CIFR", "HUT", "BTBT", "CORZ", "IREN", "WULF",
+    # Small/Mid Cap Energy & Clean Tech
+    "RUN", "NOVA", "ARRY", "STEM", "CHPT", "EVGO", "BLNK", "DCFC", "PTRA", "ARVL",
+    "LAZR", "INVZ", "OUST", "LIDR", "AEVA", "CPTN", "VLDR", "HSAI", "FFIE", "GOEV",
+    # Small/Mid Cap Misc Growth
+    "CELH", "MNST", "OLPX", "ELF", "HIMS", "PTON", "CHWY", "W", "ETSY", "PINS",
+    "SNAP", "MTCH", "BMBL", "RBLX", "U", "TTWO", "EA", "ZNGA", "DKNG", "PENN",
 ]
 
 # Logging
