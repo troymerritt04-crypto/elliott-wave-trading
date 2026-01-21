@@ -104,7 +104,7 @@ class RiskManager:
             trend_aligned = signal.indicators.get('trend_aligned', False)
             if not trend_aligned:
                 logger.debug("Skipping %s: trend alignment required", signal.symbol)
-                return False, "Price not aligned with EMA 50 trend"
+                return False, "Price not aligned with EMA 21 trend"
 
         return True, "Trade validated (all criteria met)"
 

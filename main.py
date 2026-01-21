@@ -116,7 +116,7 @@ class TradingSystem:
             logger.error("Error in scan_and_trade: %s", e, exc_info=True)
 
     def _check_position_stops(self):
-        """Check all positions for stop loss / take profit."""
+        """Check all positions for stop loss / take profit and update trailing stops."""
         positions = self.portfolio.get_all_positions()
         if not positions:
             return
@@ -127,6 +127,11 @@ class TradingSystem:
             try:
                 price = self.scanner.get_latest_price(pos.symbol, pos.market)
                 prices[pos.symbol] = {"price": price, "market": pos.market}
+
+                # Update trailing stop if enabled
+                if getattr(config, 'TRAILING_STOP_ENABLED', False):
+                    self._update_trailing_stop_for_position(pos)
+
             except Exception as e:
                 logger.debug("Could not get price for %s: %s", pos.symbol, e)
 
@@ -142,6 +147,28 @@ class TradingSystem:
                         price=result.price,
                         reason=result.message
                     )
+
+    def _update_trailing_stop_for_position(self, pos):
+        """Update trailing stop for a single position."""
+        try:
+            # Get recent data to calculate ATR
+            data = self.scanner.get_market_data(
+                pos.symbol, pos.market, config.TIMEFRAME, days=30
+            )
+
+            if data.empty or len(data) < config.ATR_PERIOD:
+                return
+
+            # Calculate ATR
+            from analysis.indicators import Indicators
+            df = Indicators.add_atr(data, period=config.ATR_PERIOD)
+            atr = df["atr"].iloc[-1]
+
+            if atr > 0:
+                self.portfolio.update_trailing_stop(pos.symbol, atr)
+
+        except Exception as e:
+            logger.debug("Could not update trailing stop for %s: %s", pos.symbol, e)
 
     def _scan_stocks(self):
         """Scan stock market for opportunities."""

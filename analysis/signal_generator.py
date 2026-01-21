@@ -85,8 +85,8 @@ class SignalGenerator:
 
         # Check volume and trend confirmation for risk manager
         volume_confirmed = volume > volume_sma * 1.1  # Volume 10% above average
-        trend_aligned_bullish = current_price > ema_50  # Price above EMA 50 for longs
-        trend_aligned_bearish = current_price < ema_50  # Price below EMA 50 for shorts
+        trend_aligned_bullish = current_price > ema_21  # Price above EMA 21 for longs
+        trend_aligned_bearish = current_price < ema_21  # Price below EMA 21 for shorts
 
         indicator_values = {
             "rsi": rsi,

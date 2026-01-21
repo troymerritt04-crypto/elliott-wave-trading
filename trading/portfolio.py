@@ -27,6 +27,9 @@ class Position:
     take_profit: Optional[float] = None
     current_price: Optional[float] = None
     unrealized_pnl: Optional[float] = None
+    highest_price: Optional[float] = None  # Highest price since entry (for trailing stop)
+    initial_stop_loss: Optional[float] = None  # Original stop loss before trailing
+    trailing_stop_active: bool = False  # Whether trailing stop has been activated
 
 
 @dataclass
@@ -190,7 +193,10 @@ class PortfolioManager:
             stop_loss=stop_loss,
             take_profit=take_profit,
             current_price=price,
-            unrealized_pnl=0.0
+            unrealized_pnl=0.0,
+            highest_price=price,  # Initialize to entry price
+            initial_stop_loss=stop_loss,  # Store original stop loss
+            trailing_stop_active=False
         )
 
         self.positions[symbol] = position
@@ -275,8 +281,93 @@ class PortfolioManager:
             position.current_price = current_price
             if position.side == "long":
                 position.unrealized_pnl = (current_price - position.entry_price) * position.qty
+                # Update highest price for trailing stop
+                if position.highest_price is None or current_price > position.highest_price:
+                    position.highest_price = current_price
             else:
                 position.unrealized_pnl = (position.entry_price - current_price) * position.qty
+                # For shorts, track lowest price
+                if position.highest_price is None or current_price < position.highest_price:
+                    position.highest_price = current_price
+
+    def update_trailing_stop(self, symbol: str, atr: float) -> bool:
+        """
+        Update trailing stop loss for a position.
+
+        Args:
+            symbol: Asset symbol
+            atr: Current ATR value for the asset
+
+        Returns:
+            True if stop loss was updated
+        """
+        if not getattr(config, 'TRAILING_STOP_ENABLED', False):
+            return False
+
+        position = self.positions.get(symbol)
+        if not position or position.current_price is None:
+            return False
+
+        entry_price = position.entry_price
+        current_price = position.current_price
+        highest_price = position.highest_price or current_price
+
+        # Calculate profit percentage
+        if position.side == "long":
+            profit_pct = (current_price - entry_price) / entry_price
+        else:
+            profit_pct = (entry_price - current_price) / entry_price
+
+        # Check if trailing stop should be activated
+        activation_pct = getattr(config, 'TRAILING_STOP_ACTIVATION_PERCENT', 0.02)
+        if profit_pct < activation_pct:
+            return False  # Not enough profit yet to activate trailing stop
+
+        # Trailing stop is now active
+        if not position.trailing_stop_active:
+            position.trailing_stop_active = True
+            logger.info("Trailing stop activated for %s at %.2f%% profit", symbol, profit_pct * 100)
+
+        # Calculate new trailing stop
+        trail_multiplier = getattr(config, 'TRAILING_STOP_ATR_MULTIPLIER', 1.5)
+        min_profit_lock = getattr(config, 'TRAILING_STOP_MIN_PROFIT_LOCK', 0.005)
+
+        if position.side == "long":
+            # For longs: trail below the highest price
+            new_stop = highest_price - (atr * trail_multiplier)
+            # Ensure we lock in minimum profit
+            min_stop = entry_price * (1 + min_profit_lock)
+            new_stop = max(new_stop, min_stop)
+
+            # Only move stop up, never down
+            if position.stop_loss is None or new_stop > position.stop_loss:
+                old_stop = position.stop_loss
+                position.stop_loss = new_stop
+                logger.info(
+                    "Trailing stop updated for %s: $%.4f -> $%.4f (highest: $%.4f, profit: %.2f%%)",
+                    symbol, old_stop or 0, new_stop, highest_price, profit_pct * 100
+                )
+                self._save_data()
+                return True
+        else:
+            # For shorts: trail above the lowest price
+            new_stop = highest_price + (atr * trail_multiplier)
+            # Ensure we lock in minimum profit
+            max_stop = entry_price * (1 - min_profit_lock)
+            new_stop = min(new_stop, max_stop)
+
+            # Only move stop down, never up (for shorts)
+            if position.stop_loss is None or new_stop < position.stop_loss:
+                old_stop = position.stop_loss
+                position.stop_loss = new_stop
+                logger.info(
+                    "Trailing stop updated for %s: $%.4f -> $%.4f (lowest: $%.4f, profit: %.2f%%)",
+                    symbol, old_stop or 0, new_stop, highest_price, profit_pct * 100
+                )
+                self._save_data()
+                return True
+
+        return False
 
     def update_all_prices(self, prices: Dict[str, float]):
         """Update prices for all positions."""

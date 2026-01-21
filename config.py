@@ -56,7 +56,13 @@ TAKE_PROFIT_MULTIPLIER = 3.0  # Risk/reward ratio
 MIN_CONFIDENCE = 0.65  # Minimum 65% confidence to enter trade
 MIN_RISK_REWARD = 1.5  # Minimum 1.5:1 risk/reward ratio
 REQUIRE_VOLUME_CONFIRMATION = False  # Disabled - don't require volume confirmation
-REQUIRE_TREND_ALIGNMENT = True  # Price must align with EMA 50
+REQUIRE_TREND_ALIGNMENT = False  # Disabled - Elliott Wave pattern provides trend context
+
+# Trailing Stop Loss Settings
+TRAILING_STOP_ENABLED = True  # Enable trailing stop loss
+TRAILING_STOP_ATR_MULTIPLIER = 1.5  # Trail by 1.5x ATR below highest price
+TRAILING_STOP_ACTIVATION_PERCENT = 0.02  # Activate trailing stop after 2% profit
+TRAILING_STOP_MIN_PROFIT_LOCK = 0.005  # Lock in at least 0.5% profit once activated
 
 # Watchlists
 CRYPTO_WATCHLIST = [
